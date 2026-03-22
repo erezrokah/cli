@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/entireio/cli/cmd/entire/cli/benchutil"
@@ -64,18 +66,12 @@ func BenchmarkGetStagedFiles(b *testing.B) {
 			br := benchutil.NewBenchRepo(b, benchutil.RepoOpts{FileCount: fileCount})
 			b.Chdir(br.Dir)
 
-			// Stage some modifications
+			// Stage some modifications via git CLI (avoids go-git wt.Add pprof noise)
 			for i := range min(5, fileCount) {
 				name := fmt.Sprintf("src/file_%03d.go", i)
 				content := benchutil.GenerateGoFile(9000+i, 100)
 				br.WriteFile(b, name, content)
-				wt, err := br.Repo.Worktree()
-				if err != nil {
-					b.Fatalf("worktree: %v", err)
-				}
-				if _, err := wt.Add(name); err != nil {
-					b.Fatalf("add: %v", err)
-				}
+				pcmGitCmd(b, br.Dir, "add", name)
 			}
 
 			b.ResetTimer()
@@ -130,21 +126,16 @@ func benchSetupPrepareCommitMsgRepo(b *testing.B, fileCount, sessionCount int) (
 		})
 	}
 
-	// Now stage modifications (after shadow branch seeding, since SeedShadowBranch
-	// writes files that overlap with what we stage)
+	// Now stage modifications via git CLI (after shadow branch seeding, since
+	// SeedShadowBranch writes files that overlap with what we stage).
+	// Uses git CLI instead of go-git wt.Add to avoid pprof noise from setup.
 	b.Chdir(br.Dir)
 	paths.ClearWorktreeRootCache()
 
-	wt, err := br.Repo.Worktree()
-	if err != nil {
-		b.Fatalf("worktree: %v", err)
-	}
 	for _, name := range modifiedFiles {
 		content := benchutil.GenerateGoFile(8000, 100)
 		br.WriteFile(b, name, content)
-		if _, err := wt.Add(name); err != nil {
-			b.Fatalf("add %s: %v", name, err)
-		}
+		pcmGitCmd(b, br.Dir, "add", name)
 	}
 
 	// Write temporary commit message file
@@ -159,4 +150,16 @@ func benchSetupPrepareCommitMsgRepo(b *testing.B, fileCount, sessionCount int) (
 	b.Setenv("ENTIRE_TEST_TTY", "0")
 
 	return br.Dir, commitMsgFile
+}
+
+// pcmGitCmd runs a git command in the given directory for benchmark setup.
+func pcmGitCmd(b *testing.B, dir string, args ...string) {
+	b.Helper()
+
+	cmd := exec.CommandContext(context.Background(), "git", args...)
+	cmd.Dir = dir
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		b.Fatalf("git %s: %v\n%s", strings.Join(args, " "), err, output)
+	}
 }
