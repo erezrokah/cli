@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+#MISE description="Run benchmarks with CPU and memory profiling for all public APIs, output PNG graphs"
+set -euo pipefail
+
+mkdir -p bench-profiles
+
+echo "=== Profiling commands (status, enable) ==="
+go test -bench=. -benchtime=5x -benchmem -run='^$' -timeout=10m \
+  -cpuprofile=bench-profiles/commands_cpu.prof \
+  -memprofile=bench-profiles/commands_mem.prof \
+  ./cmd/entire/cli
+echo ""
+
+echo "=== Profiling hooks & strategy (SaveStep, PrepareCommitMsg, PostCommit, Rewind) ==="
+go test -bench=. -benchtime=5x -benchmem -run='^$' -timeout=10m \
+  -cpuprofile=bench-profiles/strategy_cpu.prof \
+  -memprofile=bench-profiles/strategy_mem.prof \
+  ./cmd/entire/cli/strategy
+echo ""
+
+echo "=== Profiling tree operations (UpdateSubtree, ApplyTreeChanges) ==="
+go test -bench=. -benchtime=5x -benchmem -run='^$' -timeout=10m \
+  -cpuprofile=bench-profiles/tree_cpu.prof \
+  -memprofile=bench-profiles/tree_mem.prof \
+  ./cmd/entire/cli/benchutil
+echo ""
+
+echo "=== Generating PNG graphs ==="
+for name in commands strategy tree; do
+  go tool pprof -png -output="bench-profiles/${name}_cpu.png" "bench-profiles/${name}_cpu.prof"
+  go tool pprof -png -output="bench-profiles/${name}_mem.png" "bench-profiles/${name}_mem.prof"
+done
+echo ""
+
+echo "Profiles and graphs saved to bench-profiles/"
+echo ""
+echo "  PNG graphs (open directly):"
+echo "    bench-profiles/commands_cpu.png  bench-profiles/commands_mem.png"
+echo "    bench-profiles/strategy_cpu.png  bench-profiles/strategy_mem.png"
+echo "    bench-profiles/tree_cpu.png      bench-profiles/tree_mem.png"
+echo ""
+echo "  Raw profiles (for interactive exploration):"
+echo "    go tool pprof -http=:8089 bench-profiles/commands_cpu.prof"
+echo "    go tool pprof -http=:8090 bench-profiles/strategy_cpu.prof"
+echo "    go tool pprof -http=:8091 bench-profiles/tree_cpu.prof"

@@ -23,6 +23,7 @@ func BenchmarkEnableCommand(b *testing.B) {
 	}
 
 	b.Run("NewRepo_ClaudeCode", func(b *testing.B) {
+		b.ReportAllocs()
 		for b.Loop() {
 			b.StopTimer()
 			repo := benchutil.NewBenchRepo(b, benchutil.RepoOpts{})
@@ -42,6 +43,7 @@ func BenchmarkEnableCommand(b *testing.B) {
 	})
 
 	b.Run("ReEnable_ClaudeCode", func(b *testing.B) {
+		b.ReportAllocs()
 		b.StopTimer()
 		repo := benchutil.NewBenchRepo(b, benchutil.RepoOpts{})
 		b.Chdir(repo.Dir)

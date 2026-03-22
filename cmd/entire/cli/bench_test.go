@@ -56,6 +56,7 @@ func BenchmarkStatusCommand_NoCache(b *testing.B) {
 // iteration to simulate the old uncached behavior.
 func benchStatus(sessionCount int, detailed, useGitCommonDirCache bool) func(*testing.B) {
 	return func(b *testing.B) {
+		b.ReportAllocs()
 		repo := benchutil.NewBenchRepo(b, benchutil.RepoOpts{})
 
 		// Create active session state files in .git/entire-sessions/

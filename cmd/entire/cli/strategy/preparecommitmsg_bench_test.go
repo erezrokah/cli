@@ -31,6 +31,7 @@ func BenchmarkPrepareCommitMsg(b *testing.B) {
 
 func benchPrepareCommitMsg(fileCount, sessionCount int) func(*testing.B) {
 	return func(b *testing.B) {
+		b.ReportAllocs()
 		// Setup once before the loop — repo creation is expensive and
 		// PrepareCommitMsg only mutates COMMIT_EDITMSG on the idle-session + no-TTY path.
 		dir, commitMsgFile := benchSetupPrepareCommitMsgRepo(b, fileCount, sessionCount)
@@ -58,6 +59,7 @@ func benchPrepareCommitMsg(fileCount, sessionCount int) func(*testing.B) {
 func BenchmarkGetStagedFiles(b *testing.B) {
 	for _, fileCount := range []int{10, 100, 500} {
 		b.Run(fmt.Sprintf("Files_%d", fileCount), func(b *testing.B) {
+			b.ReportAllocs()
 			// Setup once before the loop — repo creation + staging is expensive.
 			br := benchutil.NewBenchRepo(b, benchutil.RepoOpts{FileCount: fileCount})
 			b.Chdir(br.Dir)

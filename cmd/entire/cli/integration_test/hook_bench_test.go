@@ -219,6 +219,7 @@ func benchSubprocessOverhead(b *testing.B) {
 // hook as a subprocess and reports latency in ms/op.
 func runSessionStartHook(b *testing.B, repo *benchutil.BenchRepo) {
 	b.Helper()
+	b.ReportAllocs()
 
 	stdinPayload, err := json.Marshal(map[string]string{
 		"session_id":      "bench-session",

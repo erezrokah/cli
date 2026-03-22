@@ -32,6 +32,7 @@ func BenchmarkPostCommit(b *testing.B) {
 
 func benchPostCommitSingleSession(phase session.Phase) func(*testing.B) {
 	return func(b *testing.B) {
+		b.ReportAllocs()
 		for range b.N {
 			b.StopTimer()
 			dir := benchSetupPostCommitRepo(b, phase, 1)
@@ -49,6 +50,7 @@ func benchPostCommitSingleSession(phase session.Phase) func(*testing.B) {
 
 func benchPostCommitMultipleSessions(sessionCount int) func(*testing.B) {
 	return func(b *testing.B) {
+		b.ReportAllocs()
 		for range b.N {
 			b.StopTimer()
 			dir := benchSetupPostCommitRepo(b, session.PhaseActive, sessionCount)

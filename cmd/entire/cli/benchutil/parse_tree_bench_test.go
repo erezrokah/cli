@@ -120,6 +120,7 @@ func BenchmarkUpdateSubtree(b *testing.B) {
 // using UpdateSubtree (O(depth) tree surgery).
 func benchUpdateSubtreeTreeSurgery(priorCheckpoints int) func(*testing.B) {
 	return func(b *testing.B) {
+		b.ReportAllocs()
 		repo := benchInitBareRepo(b)
 		rootTree := buildShardedMetadataTree(b, repo, priorCheckpoints)
 
@@ -162,6 +163,7 @@ func benchUpdateSubtreeTreeSurgery(priorCheckpoints int) func(*testing.B) {
 // add new entries, rebuild from scratch. O(total checkpoints).
 func benchUpdateSubtreeFlattenRebuild(priorCheckpoints int) func(*testing.B) {
 	return func(b *testing.B) {
+		b.ReportAllocs()
 		repo := benchInitBareRepo(b)
 		rootTree := buildShardedMetadataTree(b, repo, priorCheckpoints)
 
@@ -232,6 +234,7 @@ func BenchmarkApplyTreeChanges(b *testing.B) {
 // using ApplyTreeChanges (only touches affected subtrees).
 func benchApplyTreeChangesTreeSurgery(fileCount, changeCount int) func(*testing.B) {
 	return func(b *testing.B) {
+		b.ReportAllocs()
 		repo := benchInitBareRepo(b)
 		rootTree := buildFlatFileTree(b, repo, fileCount)
 
@@ -267,6 +270,7 @@ func benchApplyTreeChangesTreeSurgery(fileCount, changeCount int) func(*testing.
 // modifications: flatten, modify, rebuild.
 func benchApplyTreeChangesFlattenRebuild(fileCount, changeCount int) func(*testing.B) {
 	return func(b *testing.B) {
+		b.ReportAllocs()
 		repo := benchInitBareRepo(b)
 		rootTree := buildFlatFileTree(b, repo, fileCount)
 

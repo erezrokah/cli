@@ -60,3 +60,6 @@ docs/requirements
 docs/plans
 docs/reviews
 tmp/
+
+# Benchmark profiling output
+bench-profiles/
