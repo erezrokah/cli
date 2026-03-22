@@ -3,9 +3,10 @@
   "checkpoint_id": "af6f4d79cd73",
   "strategy": "manual-commit",
   "branch": "claude/stoic-wilson",
-  "checkpoints_count": 3,
+  "checkpoints_count": 2,
   "files_touched": [
-    "docs/benchmark-profile-comparison.md"
+    "cmd/entire/cli/benchutil/benchutil.go",
+    "cmd/entire/cli/strategy/postcommit_bench_test.go"
   ],
   "sessions": [
     {
@@ -16,10 +17,10 @@
     }
   ],
   "token_usage": {
-    "input_tokens": 5532,
-    "cache_creation_tokens": 1550186,
-    "cache_read_tokens": 45951776,
-    "output_tokens": 96084,
-    "api_call_count": 220
+    "input_tokens": 5540,
+    "cache_creation_tokens": 1555116,
+    "cache_read_tokens": 47964284,
+    "output_tokens": 99867,
+    "api_call_count": 226
   }
 }
