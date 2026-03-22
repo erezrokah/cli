@@ -58,3 +58,24 @@ Let's compare with `/usr/bin/time -l` I want to see if we changed something with
 OK can we create a summary about that (profile signal quality) for all relevant benchmarks existing and new?
 I'd like to show that it's easier to identity CLI code bottlenecks.
 We should use the pprof profiles (CPU and Mem) for each benchmark to prove it
+
+---
+
+For the benchmarks in the comparison doc can you re-run the before/after comparison and generate the pprof pngs (cpu and mem)? I'd like to report this to the maintainers so it would be good to have before/after images of existing (and new) benchmarks, don't commit anything.
+Put the results under bench-profiles
+
+---
+
+What are those for existing benchmarks and what for new?
+
+---
+
+Changed my mind, let's do it per benchmark before/after and also label existing/new
+
+---
+
+Update docs/benchmark-profile-comparison.md to do per benchmark comparison. Also what is the existing benchmark that shows the best improvement? I can give that as an example to the maintainers
+
+---
+
+Did you commit the changes to docs/benchmark-profile-comparison.md?
