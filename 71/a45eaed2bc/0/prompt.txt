@@ -121,3 +121,7 @@ GenerateGoFile is only used in tests
 ---
 
 Where did you see Commands after is 38KB
+
+---
+
+Isn't 38396.41kB 38,39641 MB?
