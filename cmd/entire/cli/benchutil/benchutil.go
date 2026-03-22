@@ -25,6 +25,7 @@ import (
 
 	"github.com/go-git/go-git/v6"
 	"github.com/go-git/go-git/v6/plumbing"
+	"github.com/go-git/go-git/v6/plumbing/object"
 )
 
 // BenchRepo is a fully initialized git repository with Entire configured,
@@ -91,11 +92,6 @@ func (o *RepoOpts) withDefaults() RepoOpts {
 // The repo has an initial commit with the configured number of files,
 // a .gitignore excluding .entire/, and Entire settings initialized.
 //
-// Uses git CLI for add/commit operations instead of go-git to minimize
-// benchmark setup overhead in pprof profiles. go-git's wt.Add() is
-// extremely expensive (full index rebuild, merkletrie diff, SecureJoinVFS
-// per file) and dominates profiles even though it's only setup code.
-//
 // Uses b.TempDir() so cleanup is automatic.
 func NewBenchRepo(b *testing.B, opts RepoOpts) *BenchRepo {
 	b.Helper()
@@ -107,54 +103,74 @@ func NewBenchRepo(b *testing.B, opts RepoOpts) *BenchRepo {
 		dir = resolved
 	}
 
-	// Init repo and configure git user via CLI
-	gitCmd(b, dir, "init")
-	gitCmd(b, dir, "config", "user.name", "Bench User")
-	gitCmd(b, dir, "config", "user.email", "bench@example.com")
-	gitCmd(b, dir, "config", "commit.gpgsign", "false")
+	// Init repo
+	repo, err := git.PlainInit(dir, false)
+	if err != nil {
+		b.Fatalf("git init: %v", err)
+	}
 
 	// Create .gitignore and .entire settings
 	writeFile(b, dir, ".gitignore", ".entire/\n")
 	initEntireSettings(b, dir, opts.Strategy)
 
 	// Generate initial files
+	wt, err := repo.Worktree()
+	if err != nil {
+		b.Fatalf("worktree: %v", err)
+	}
+
 	for i := range opts.FileCount {
 		name := fmt.Sprintf("src/file_%03d.go", i)
 		content := GenerateGoFile(i, opts.FileSizeLines)
 		writeFile(b, dir, name, content)
+		if _, err := wt.Add(name); err != nil {
+			b.Fatalf("add %s: %v", name, err)
+		}
+	}
+	if _, err := wt.Add(".gitignore"); err != nil {
+		b.Fatalf("add .gitignore: %v", err)
 	}
 
-	// Stage and commit via git CLI (much faster than go-git wt.Add per file)
-	gitCmd(b, dir, "add", "-A")
-	gitCmd(b, dir, "commit", "-m", "Commit 1", "--no-gpg-sign")
-
-	// Create additional commits if requested
-	for c := 1; c < opts.CommitCount; c++ {
-		name := fmt.Sprintf("src/file_%03d.go", c%opts.FileCount)
-		content := GenerateGoFile(c*1000, opts.FileSizeLines)
-		writeFile(b, dir, name, content)
-		gitCmd(b, dir, "add", "-A")
-		gitCmd(b, dir, "commit", "-m", fmt.Sprintf("Commit %d", c+1), "--no-gpg-sign")
+	// Create commits
+	var headHash plumbing.Hash
+	for c := range opts.CommitCount {
+		if c > 0 {
+			// Modify a file for subsequent commits
+			name := fmt.Sprintf("src/file_%03d.go", c%opts.FileCount)
+			content := GenerateGoFile(c*1000, opts.FileSizeLines)
+			writeFile(b, dir, name, content)
+			if _, err := wt.Add(name); err != nil {
+				b.Fatalf("add %s: %v", name, err)
+			}
+		}
+		headHash, err = wt.Commit(fmt.Sprintf("Commit %d", c+1), &git.CommitOptions{
+			Author: &object.Signature{
+				Name:  "Bench User",
+				Email: "bench@example.com",
+				When:  time.Now(),
+			},
+		})
+		if err != nil {
+			b.Fatalf("commit %d: %v", c+1, err)
+		}
 	}
 
-	// Optionally create and checkout feature branch
+	// Optionally create feature branch
 	if opts.FeatureBranch != "" {
-		gitCmd(b, dir, "checkout", "-b", opts.FeatureBranch)
+		ref := plumbing.NewHashReference(
+			plumbing.NewBranchReferenceName(opts.FeatureBranch), headHash)
+		if err := repo.Storer.SetReference(ref); err != nil {
+			b.Fatalf("create branch: %v", err)
+		}
+		// Checkout via git CLI (go-git v5 checkout bug)
+		checkoutBranch(b, dir, opts.FeatureBranch)
 	}
-
-	// Open repo with go-git to get the handle needed by SeedShadowBranch, Store, etc.
-	repo, err := git.PlainOpen(dir)
-	if err != nil {
-		b.Fatalf("open repo: %v", err)
-	}
-
-	headHash := gitCmd(b, dir, "rev-parse", "HEAD")
 
 	br := &BenchRepo{
 		Dir:      dir,
 		Repo:     repo,
 		Store:    checkpoint.NewGitStore(repo),
-		HeadHash: headHash,
+		HeadHash: headHash.String(),
 		Strategy: opts.Strategy,
 	}
 
@@ -174,29 +190,30 @@ func (br *BenchRepo) WriteFile(b *testing.B, relPath, content string) {
 }
 
 // AddAndCommit stages the given files and creates a commit.
-// Uses git CLI instead of go-git to minimize pprof noise from setup code.
 // Returns the new HEAD hash.
 func (br *BenchRepo) AddAndCommit(b *testing.B, message string, files ...string) string {
 	b.Helper()
-	args := append([]string{"add", "--"}, files...)
-	gitCmd(b, br.Dir, args...)
-	gitCmd(b, br.Dir, "commit", "-m", message, "--no-gpg-sign")
-	br.refreshRepo(b)
-	return br.HeadHash
-}
-
-// refreshRepo re-opens the go-git repository handle after git CLI operations.
-// go-git's in-memory state doesn't reflect changes made via CLI, so we must
-// re-open to get a fresh view of refs, objects, and HEAD.
-func (br *BenchRepo) refreshRepo(b *testing.B) {
-	b.Helper()
-	repo, err := git.PlainOpen(br.Dir)
+	wt, err := br.Repo.Worktree()
 	if err != nil {
-		b.Fatalf("reopen repo: %v", err)
+		b.Fatalf("worktree: %v", err)
 	}
-	br.Repo = repo
-	br.Store = checkpoint.NewGitStore(repo)
-	br.HeadHash = gitCmd(b, br.Dir, "rev-parse", "HEAD")
+	for _, f := range files {
+		if _, err := wt.Add(f); err != nil {
+			b.Fatalf("add %s: %v", f, err)
+		}
+	}
+	hash, err := wt.Commit(message, &git.CommitOptions{
+		Author: &object.Signature{
+			Name:  "Bench User",
+			Email: "bench@example.com",
+			When:  time.Now(),
+		},
+	})
+	if err != nil {
+		b.Fatalf("commit: %v", err)
+	}
+	br.HeadHash = hash.String()
+	return hash.String()
 }
 
 // SessionOpts configures how CreateSessionState creates a session state file.
@@ -493,18 +510,13 @@ func initEntireSettings(b *testing.B, dir, strategy string) {
 	}
 }
 
-// gitCmd runs a git command in the given directory and returns trimmed stdout.
-// Uses git CLI instead of go-git for benchmark setup to minimize pprof noise.
-func gitCmd(b *testing.B, dir string, args ...string) string {
+func checkoutBranch(b *testing.B, dir, branch string) {
 	b.Helper()
-
-	cmd := exec.CommandContext(context.Background(), "git", args...)
-	cmd.Dir = dir
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		b.Fatalf("git %s: %v\n%s", strings.Join(args, " "), err, output)
+	c := exec.CommandContext(context.Background(), "git", "checkout", branch)
+	c.Dir = dir
+	if output, err := c.CombinedOutput(); err != nil {
+		b.Fatalf("git checkout %s: %v\n%s", branch, err, output)
 	}
-	return strings.TrimSpace(string(output))
 }
 
 // generateTranscriptMessage creates a single JSONL message for a Claude Code transcript.

@@ -4,15 +4,17 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"strings"
 	"testing"
+	"time"
 
 	"github.com/entireio/cli/cmd/entire/cli/checkpoint/id"
 	"github.com/entireio/cli/cmd/entire/cli/paths"
 	"github.com/entireio/cli/cmd/entire/cli/session"
 	"github.com/entireio/cli/cmd/entire/cli/trailers"
+
+	"github.com/go-git/go-git/v6"
+	"github.com/go-git/go-git/v6/plumbing/object"
 )
 
 // BenchmarkPostCommit measures the full PostCommit hook execution time.
@@ -66,7 +68,6 @@ func benchPostCommitMultipleSessions(sessionCount int) func(*testing.B) {
 
 // benchSetupPostCommitRepo creates a git repo with N sessions that have shadow branch
 // checkpoints, then creates a commit with the Entire-Checkpoint trailer.
-// Uses git CLI for add/commit operations to minimize pprof noise from setup code.
 // Returns the repo directory path, ready for PostCommit() to run.
 func benchSetupPostCommitRepo(b *testing.B, phase session.Phase, sessionCount int) string {
 	b.Helper()
@@ -77,11 +78,27 @@ func benchSetupPostCommitRepo(b *testing.B, phase session.Phase, sessionCount in
 		dir = resolved
 	}
 
-	// Init repo and configure git user via CLI
-	benchGitCmd(b, dir, "init")
-	benchGitCmd(b, dir, "config", "user.name", "Bench User")
-	benchGitCmd(b, dir, "config", "user.email", "bench@example.com")
-	benchGitCmd(b, dir, "config", "commit.gpgsign", "false")
+	repo, err := git.PlainInit(dir, false)
+	if err != nil {
+		b.Fatalf("git init: %v", err)
+	}
+
+	// Configure git user
+	cfg, err := repo.Config()
+	if err != nil {
+		b.Fatalf("config: %v", err)
+	}
+	cfg.User.Name = "Bench User"
+	cfg.User.Email = "bench@example.com"
+	if err := repo.SetConfig(cfg); err != nil {
+		b.Fatalf("set config: %v", err)
+	}
+
+	// Create initial files and commit
+	wt, err := repo.Worktree()
+	if err != nil {
+		b.Fatalf("worktree: %v", err)
+	}
 
 	// Create multiple files to make file overlap checks realistic
 	for i := range 5 {
@@ -94,11 +111,16 @@ func benchSetupPostCommitRepo(b *testing.B, phase session.Phase, sessionCount in
 		if err := os.WriteFile(abs, []byte(content), 0o644); err != nil {
 			b.Fatalf("write: %v", err)
 		}
+		if _, err := wt.Add(name); err != nil {
+			b.Fatalf("add: %v", err)
+		}
 	}
 
-	// Stage and commit via git CLI (much faster than go-git wt.Add per file)
-	benchGitCmd(b, dir, "add", "-A")
-	benchGitCmd(b, dir, "commit", "-m", "initial commit", "--no-gpg-sign")
+	if _, err := wt.Commit("initial commit", &git.CommitOptions{
+		Author: &object.Signature{Name: "Bench", Email: "bench@test.com", When: time.Now()},
+	}); err != nil {
+		b.Fatalf("commit: %v", err)
+	}
 
 	s := &ManualCommitStrategy{}
 
@@ -169,27 +191,21 @@ func benchSetupPostCommitRepo(b *testing.B, phase session.Phase, sessionCount in
 		b.Fatalf("generate ID: %v", err)
 	}
 
-	// Modify a file and commit with trailer via git CLI
+	// Modify a file and commit with trailer
 	testFile := filepath.Join(dir, "src/file_0.go")
 	if err := os.WriteFile(testFile, []byte("package main\n// modified by agent session 0\nfunc f() {}\n"), 0o644); err != nil {
 		b.Fatalf("write: %v", err)
 	}
+	if _, err := wt.Add("src/file_0.go"); err != nil {
+		b.Fatalf("add: %v", err)
+	}
 
-	benchGitCmd(b, dir, "add", "src/file_0.go")
 	commitMsg := fmt.Sprintf("implement feature\n\n%s: %s\n", trailers.CheckpointTrailerKey, cpID)
-	benchGitCmd(b, dir, "commit", "-m", commitMsg, "--no-gpg-sign")
+	if _, err := wt.Commit(commitMsg, &git.CommitOptions{
+		Author: &object.Signature{Name: "Bench", Email: "bench@test.com", When: time.Now()},
+	}); err != nil {
+		b.Fatalf("commit: %v", err)
+	}
 
 	return dir
-}
-
-// benchGitCmd runs a git command in the given directory for benchmark setup.
-func benchGitCmd(b *testing.B, dir string, args ...string) {
-	b.Helper()
-
-	cmd := exec.CommandContext(context.Background(), "git", args...)
-	cmd.Dir = dir
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		b.Fatalf("git %s: %v\n%s", strings.Join(args, " "), err, output)
-	}
 }
