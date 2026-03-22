@@ -39,3 +39,22 @@ getStagedFiles already uses git cli directly
 ---
 
 Did it make the benchmark run faster or the work was moved to spawning git commands
+
+---
+
+Push the changes to a branch, don't open a PR
+
+---
+
+I want to see the impact on all benchmarks, existing and new.
+Also is there a way to measure memory allocations and CPU for the test and child processes?
+
+---
+
+Let's compare with `/usr/bin/time -l` I want to see if we changed something with memory usage (e.g. if git is more efficient than go-git)
+
+---
+
+OK can we create a summary about that (profile signal quality) for all relevant benchmarks existing and new?
+I'd like to show that it's easier to identity CLI code bottlenecks.
+We should use the pprof profiles (CPU and Mem) for each benchmark to prove it
