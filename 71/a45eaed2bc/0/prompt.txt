@@ -108,3 +108,12 @@ Is docs/benchmarking.md up to date?
 ---
 
 I think benchmark-profile-comparison.md should say go 1.26.x
+
+---
+
+OK re-run the benchmarks based on the reproductions in benchmark-profile-comparison.md.
+I want to report to maintainers the package (ideally existing) with the biggest improvement
+
+---
+
+GenerateGoFile is only used in tests
