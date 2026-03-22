@@ -91,3 +91,7 @@ update docs/benchmark-profile-comparison.md with instructions on how to run ea
 ---
 
 did you push the changes?
+
+---
+
+What about wt.Add in benchSetupPrepareCommitMsgRepo?

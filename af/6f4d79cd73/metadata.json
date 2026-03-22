@@ -3,7 +3,7 @@
   "checkpoint_id": "af6f4d79cd73",
   "strategy": "manual-commit",
   "branch": "claude/stoic-wilson",
-  "checkpoints_count": 2,
+  "checkpoints_count": 1,
   "files_touched": [
     "cmd/entire/cli/benchutil/benchutil.go",
     "cmd/entire/cli/strategy/postcommit_bench_test.go"
@@ -17,10 +17,10 @@
     }
   ],
   "token_usage": {
-    "input_tokens": 5560,
-    "cache_creation_tokens": 1582933,
-    "cache_read_tokens": 53665013,
-    "output_tokens": 112810,
-    "api_call_count": 242
+    "input_tokens": 5563,
+    "cache_creation_tokens": 1583874,
+    "cache_read_tokens": 54767860,
+    "output_tokens": 113386,
+    "api_call_count": 245
   }
 }
