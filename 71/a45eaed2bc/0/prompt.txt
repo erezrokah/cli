@@ -104,3 +104,7 @@ Then add a third commit (we should have 3 in total) with package level before/af
 ---
 
 Is docs/benchmarking.md up to date?
+
+---
+
+I think benchmark-profile-comparison.md should say go 1.26.x
