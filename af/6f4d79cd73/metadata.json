@@ -1,0 +1,23 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "af6f4d79cd73",
+  "strategy": "manual-commit",
+  "branch": "claude/stoic-wilson",
+  "checkpoints_count": 2,
+  "files_touched": null,
+  "sessions": [
+    {
+      "metadata": "/af/6f4d79cd73/0/metadata.json",
+      "transcript": "/af/6f4d79cd73/0/full.jsonl",
+      "content_hash": "/af/6f4d79cd73/0/content_hash.txt",
+      "prompt": "/af/6f4d79cd73/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 5491,
+    "cache_creation_tokens": 1514015,
+    "cache_read_tokens": 36825305,
+    "output_tokens": 82723,
+    "api_call_count": 191
+  }
+}
