@@ -95,3 +95,8 @@ did you push the changes?
 ---
 
 What about wt.Add in benchSetupPrepareCommitMsgRepo?
+
+---
+
+I want the fix in the second commit, so you need to amend e418a1c0c198e779c03bb9134bfef9611eadf586.
+Then add a third commit (we should have 3 in total) with package level before/after comparison (having benchmark level is too much)
