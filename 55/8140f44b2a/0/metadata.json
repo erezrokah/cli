@@ -1,0 +1,33 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "558140f44b2a",
+  "session_id": "6a37822e-4362-44f8-8996-d6c89616015d",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-22T17:29:07.977178Z",
+  "branch": "claude/funny-hellman",
+  "checkpoints_count": 5,
+  "files_touched": [
+    "CLAUDE.md"
+  ],
+  "agent": "Claude Code",
+  "turn_id": "7f58f6bf1e82",
+  "token_usage": {
+    "input_tokens": 33,
+    "cache_creation_tokens": 54862,
+    "cache_read_tokens": 1879460,
+    "output_tokens": 1906,
+    "api_call_count": 21
+  },
+  "session_metrics": {
+    "turn_count": 5
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-22T17:29:07.925981Z",
+    "agent_lines": 1,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 1,
+    "agent_percentage": 100
+  }
+}

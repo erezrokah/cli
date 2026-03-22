@@ -1,0 +1,19 @@
+check if the docs are up to date with the Go version req
+
+---
+
+AGENTS.md
+
+---
+
+line 25
+
+---
+
+I see - Language: Go 1.25.x
+- Build tool: mise, go modules
+- Linting: golangci-lint
+
+---
+
+Ah ok it's a symbolic link that's why
