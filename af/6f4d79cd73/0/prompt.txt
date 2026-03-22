@@ -83,3 +83,7 @@ Did you commit the changes to docs/benchmark-profile-comparison.md?
 ---
 
 amend
+
+---
+
+update docs/benchmark-profile-comparison.md with instructions on how to run each before/after benchmark
