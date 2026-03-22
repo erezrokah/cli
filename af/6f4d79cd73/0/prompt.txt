@@ -79,3 +79,7 @@ Update docs/benchmark-profile-comparison.md to do per benchmark comparison. Al
 ---
 
 Did you commit the changes to docs/benchmark-profile-comparison.md?
+
+---
+
+amend
