@@ -35,3 +35,7 @@ Can you make recommendations what to improve?
 ---
 
 getStagedFiles already uses git cli directly
+
+---
+
+Did it make the benchmark run faster or the work was moved to spawning git commands
