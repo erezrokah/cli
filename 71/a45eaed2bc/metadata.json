@@ -3,8 +3,12 @@
   "checkpoint_id": "71a45eaed2bc",
   "strategy": "manual-commit",
   "branch": "claude/stoic-wilson",
-  "checkpoints_count": 1,
-  "files_touched": null,
+  "checkpoints_count": 3,
+  "files_touched": [
+    "cmd/entire/cli/benchutil/benchutil.go",
+    "cmd/entire/cli/strategy/postcommit_bench_test.go",
+    "cmd/entire/cli/strategy/preparecommitmsg_bench_test.go"
+  ],
   "sessions": [
     {
       "metadata": "/71/a45eaed2bc/0/metadata.json",
@@ -14,10 +18,10 @@
     }
   ],
   "token_usage": {
-    "input_tokens": 5608,
-    "cache_creation_tokens": 1919734,
-    "cache_read_tokens": 67301700,
-    "output_tokens": 130122,
-    "api_call_count": 280
+    "input_tokens": 5619,
+    "cache_creation_tokens": 1921883,
+    "cache_read_tokens": 69521326,
+    "output_tokens": 131220,
+    "api_call_count": 287
   }
 }

@@ -3,20 +3,33 @@
   "checkpoint_id": "71a45eaed2bc",
   "session_id": "11afd274-dc39-4c14-b944-32bac0acf167",
   "strategy": "manual-commit",
-  "created_at": "2026-03-22T22:06:16.845953Z",
+  "created_at": "2026-03-22T22:17:28.44119Z",
   "branch": "claude/stoic-wilson",
-  "checkpoints_count": 1,
-  "files_touched": [],
+  "checkpoints_count": 3,
+  "files_touched": [
+    "cmd/entire/cli/benchutil/benchutil.go",
+    "cmd/entire/cli/strategy/postcommit_bench_test.go",
+    "cmd/entire/cli/strategy/preparecommitmsg_bench_test.go"
+  ],
   "agent": "Claude Code",
-  "turn_id": "d98f76af3b0b",
+  "turn_id": "76bb0f407859",
   "token_usage": {
-    "input_tokens": 5608,
-    "cache_creation_tokens": 1919734,
-    "cache_read_tokens": 67301700,
-    "output_tokens": 130122,
-    "api_call_count": 280
+    "input_tokens": 5619,
+    "cache_creation_tokens": 1921883,
+    "cache_read_tokens": 69521326,
+    "output_tokens": 131220,
+    "api_call_count": 287
   },
   "session_metrics": {
-    "turn_count": 23
+    "turn_count": 25
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-22T22:17:27.640474Z",
+    "agent_lines": 0,
+    "human_added": 28,
+    "human_modified": 106,
+    "human_removed": 0,
+    "total_committed": 134,
+    "agent_percentage": 0
   }
 }

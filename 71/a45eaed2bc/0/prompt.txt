@@ -117,3 +117,7 @@ I want to report to maintainers the package (ideally existing) with the biggest 
 ---
 
 GenerateGoFile is only used in tests
+
+---
+
+Where did you see Commands after is 38KB
