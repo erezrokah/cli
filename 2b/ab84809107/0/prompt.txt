@@ -1,0 +1,34 @@
+audit this repo for supply chain attackaudit this repo for supply chain attack
+
+---
+
+Let's create the PR first on the fork so I can see it, when I approve we can create on the upstream repo
+
+---
+
+Well it's https://github.com/entireio/cli/pull/866 but never mind let me check
+
+---
+
+Does the repo have a pull request template? If so let's make the description shorter.
+Also add the details section like in the skill, remove the test plan
+
+---
+
+cooldown option is default-days link to docs
+
+---
+
+what about the other supply chain attacks (more recent ones) in the skill
+
+---
+
+Package registry attacks not relevant here it's a go repo
+
+---
+
+missing links to KICS and LiteLLM
+
+---
+
+see review comments
