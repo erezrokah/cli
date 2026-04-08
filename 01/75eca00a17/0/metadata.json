@@ -1,0 +1,35 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "0175eca00a17",
+  "session_id": "49a4ebbd-35c8-4e47-9c66-68fe9e3e2ea4",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-08T08:11:55.354647Z",
+  "branch": "claude/quirky-swanson",
+  "checkpoints_count": 0,
+  "files_touched": [
+    ".github/workflows/ci.yml",
+    ".github/workflows/e2e.yml",
+    ".github/workflows/e2e-windows.yml",
+    ".github/workflows/e2e-isolated.yml",
+    ".github/workflows/release.yml",
+    ".github/workflows/lint.yml"
+  ],
+  "agent": "Claude Code",
+  "turn_id": "a2d0ab458633",
+  "token_usage": {
+    "input_tokens": 55,
+    "cache_creation_tokens": 57382,
+    "cache_read_tokens": 2031327,
+    "output_tokens": 9627,
+    "api_call_count": 50
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-08T08:11:55.25778Z",
+    "agent_lines": 22,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 22,
+    "agent_percentage": 100
+  }
+}

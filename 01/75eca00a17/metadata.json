@@ -1,0 +1,30 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "0175eca00a17",
+  "strategy": "manual-commit",
+  "branch": "claude/quirky-swanson",
+  "checkpoints_count": 0,
+  "files_touched": [
+    ".github/workflows/ci.yml",
+    ".github/workflows/e2e-isolated.yml",
+    ".github/workflows/e2e-windows.yml",
+    ".github/workflows/e2e.yml",
+    ".github/workflows/lint.yml",
+    ".github/workflows/release.yml"
+  ],
+  "sessions": [
+    {
+      "metadata": "/01/75eca00a17/0/metadata.json",
+      "transcript": "/01/75eca00a17/0/full.jsonl",
+      "content_hash": "/01/75eca00a17/0/content_hash.txt",
+      "prompt": "/01/75eca00a17/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 55,
+    "cache_creation_tokens": 57382,
+    "cache_read_tokens": 2031327,
+    "output_tokens": 9627,
+    "api_call_count": 50
+  }
+}
